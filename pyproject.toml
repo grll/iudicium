@@ -12,3 +12,9 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.12.12",
 ]
+
+[tool.ruff.lint]
+select = ["D", "I"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
