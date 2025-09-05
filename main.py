@@ -18,11 +18,13 @@ Use async to parallelize the calls, maybe implement retry / rate limit?
 
 3. evaluate with ROUGE / BLEU score the translation
 """
+
 import logging
 import pickle
 import xml.etree.ElementTree as ET
 
 log = logging.getLogger(__name__)
+
 
 def parse_constitution(xml_path: str) -> dict[str, list[str]]:
     """Parse the constitution XML file and extract articles and their paragraphs.
@@ -83,4 +85,27 @@ if __name__ == "__main__":
     rm_articles = parse_constitution("data/sources/SR-101-03032024-RM.xml")
     with open("data/processed/constitution_rm.pkl", "wb") as f:
         pickle.dump(rm_articles, f)
+
+    # remove articles that are not consistent across both languages:
+    # - Article 83: EN=1 vs RM=2 (+1 in Romansh)
+    # - Article 175: EN=4 vs RM=2 (-2 in Romansh)
+    # - Article 189: EN=4 vs RM=5 (+1 in Romansh)
+    # - Article 197: EN=26 vs RM=29 (+3 in Romansh)
+    # see details in notebooks/001_check_parsing.ipynb
+    inconsistent_articles = {"83", "175", "189", "197"}
+
+    for art in inconsistent_articles:
+        if art in en_articles:
+            del en_articles[art]
+        if art in rm_articles:
+            del rm_articles[art]
+
+    # ensure consistency before moving forward..
+    assert set(en_articles.keys()) == set(rm_articles.keys()), (
+        "Article numbers do not match"
+    )
+    for art_num in en_articles.keys():
+        assert len(en_articles[art_num]) == len(rm_articles[art_num]), (
+            f"Number of paragraphs do not match in article {art_num}"
+        )
 
