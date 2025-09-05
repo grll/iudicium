@@ -1,0 +1,1 @@
+- you can find the structure of the xml files in .claude/docs folder. For example data/sources/SR-101-03032024-EN.xml structure is documented in .claude/docs. 
