@@ -18,10 +18,11 @@ Use async to parallelize the calls, maybe implement retry / rate limit?
 
 3. evaluate with ROUGE / BLEU score the translation
 """
-
+import logging
 import pickle
 import xml.etree.ElementTree as ET
 
+log = logging.getLogger(__name__)
 
 def parse_constitution(xml_path: str) -> dict[str, list[str]]:
     """Parse the constitution XML file and extract articles and their paragraphs.
@@ -32,6 +33,8 @@ def parse_constitution(xml_path: str) -> dict[str, list[str]]:
     Returns:
         dict[str, list[str]]: A dictionary where keys are article numbers and values are lists of paragraphs.
     """
+    log.info(f"Parsing constitution from {xml_path}")
+
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
@@ -64,16 +67,17 @@ def parse_constitution(xml_path: str) -> dict[str, list[str]]:
         if paragraphs:
             articles[art_num] = paragraphs
 
+    log.info(f"Found {len(articles)} articles in the constitution")
+    log.info(f"Total paragraphs: {sum(len(p) for p in articles.values())}")
     return articles
 
 
 if __name__ == "__main__":
-    en_articles = parse_constitution("data/sources/SR-101-03032024-EN.xml")
+    logging.basicConfig(level=logging.INFO)
 
-    breakpoint()
+    en_articles = parse_constitution("data/sources/SR-101-03032024-EN.xml")
 
     with open("data/processed/constitution_en.pkl", "wb") as f:
         pickle.dump(en_articles, f)
 
-    print(f"Parsed {len(en_articles)} articles")
-    print(f"Total paragraphs: {sum(len(p) for p in en_articles.values())}")
+
