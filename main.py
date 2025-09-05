@@ -33,7 +33,7 @@ def parse_constitution(xml_path: str) -> dict[str, list[str]]:
     Returns:
         dict[str, list[str]]: A dictionary where keys are article numbers and values are lists of paragraphs.
     """
-    log.info(f"Parsing constitution from {xml_path}")
+    log.info(f"Parsing constitution from '{xml_path}'")
 
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -75,9 +75,12 @@ def parse_constitution(xml_path: str) -> dict[str, list[str]]:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
+    # parse and save constitution in both languages
     en_articles = parse_constitution("data/sources/SR-101-03032024-EN.xml")
-
     with open("data/processed/constitution_en.pkl", "wb") as f:
         pickle.dump(en_articles, f)
 
+    rm_articles = parse_constitution("data/sources/SR-101-03032024-RM.xml")
+    with open("data/processed/constitution_rm.pkl", "wb") as f:
+        pickle.dump(rm_articles, f)
 
