@@ -1,10 +1,18 @@
 [project]
-name = "eval"
-version = "0.1.0"
+name = "iudicium"
+dynamic = ["version"]
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "python-dotenv>=1.1.1",
+    "tqdm>=4.67.1",
+]
+
+[project.optional-dependencies]
+openrouter = [
+    "openai>=1.106.1",
+]
 
 [dependency-groups]
 dev = [
@@ -13,6 +21,13 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.12.12",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/iudicium/__init__.py"
 
 [tool.ruff.lint]
 select = ["D", "I"]
