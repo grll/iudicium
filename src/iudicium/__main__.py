@@ -24,6 +24,7 @@ import importlib
 import logging
 import sys
 
+from iudicium.metrics import compute_metrics
 from iudicium.parser import parse
 from iudicium.translators import TRANSLATORS
 
@@ -128,7 +129,7 @@ if __name__ == "__main__":
         if translator_class is None:
             log.error(f"Translator '{args.translator}' is not available")
             sys.exit(1)
-        
+
         # create the translator from cli args provided.
         translator = translator_class.from_args(args)
 
@@ -154,14 +155,14 @@ if __name__ == "__main__":
     # use desired translator here
     # TODO: cache on disk the results for the same set of arguments
     log.info(f"Step 2. Calling {args.translator} translator.")
-    breakpoint()
     translated_articles = asyncio.run(translator.translate(en_articles))
 
     log.info("Step 3. Assessing translated articles.")
+    metrics = compute_metrics(translated_articles, rm_articles)
+    print(metrics)
     # table output in terminal
     # csv file (each row = 1 paragraph + Average or total, each column = one metric)
     # TODO: Implement metrics module
     # metrics = metrics.compute(translated_articles, rm_articles)
     # print(metrics) # pretty table
     # metrics.write_csv(f"data/metrics/{dt.isoformat()}_{args.translator}_{sorted_args_passed}.csv")
-    log.info("Metrics assessment not yet implemented.")
