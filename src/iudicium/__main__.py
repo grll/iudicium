@@ -19,7 +19,10 @@ Use async to parallelize the calls, maybe implement retry / rate limit?
 3. evaluate with ROUGE / BLEU score the translation
 """
 
+import argparse
+import importlib
 import logging
+import sys
 
 from iudicium.parser import parse
 from iudicium.translators import TRANSLATORS
@@ -27,33 +30,117 @@ from iudicium.translators import TRANSLATORS
 log = logging.getLogger(__name__)
 
 
+def try_import_translator(translator_name: str):
+    """Try to import translator and return class if successful."""
+    try:
+        module = importlib.import_module(f"iudicium.translators.{translator_name}")
+        return getattr(module, "Translator")
+    except ImportError as e:
+        log.warning(
+            f"Translator '{translator_name}' is not available due to missing dependencies: {e}"
+        )
+        log.warning(
+            f"To use '{translator_name}', install with: uv add 'iudicium[{translator_name}]'"
+        )
+        return None
+    except AttributeError as e:
+        log.warning(
+            f"Translator '{translator_name}' module found but missing Translator class: {e}"
+        )
+        return None
+    except KeyError as e:
+        log.warning(
+            f"Translator '{translator_name}' is available but missing environment variable: {e}"
+        )
+        log.warning(
+            f"Please check the documentation for '{translator_name}' translator setup"
+        )
+        return None
+    except Exception as e:
+        log.warning(f"Translator '{translator_name}' failed to load: {e}")
+        return None
+
+
+def create_parser() -> argparse.ArgumentParser:
+    """Create the argument parser for the CLI."""
+    parser = argparse.ArgumentParser(
+        description="Evaluate LLM translation of the Swiss constitution."
+    )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Set the logging level",
+    )
+
+    # Create subparsers for different translators
+    subparsers = parser.add_subparsers(
+        dest="translator",
+        required=True,
+        help="Choose the translator to use",
+    )
+
+    # Track available translators
+    available_translators = []
+
+    # Dynamically add arguments for each translator
+    for translator_name in TRANSLATORS:
+        translator_class = try_import_translator(translator_name)
+
+        if translator_class is not None:
+            # Only create subparser if translator is available
+            translator_parser = subparsers.add_parser(
+                translator_name,
+                help=f"Use {translator_name} translator",
+            )
+            available_translators.append(translator_name)
+
+            # Add translator-specific arguments
+            for arg_names, arg_kwargs in translator_class.get_argparse_args():
+                translator_parser.add_argument(*arg_names, **arg_kwargs)
+
+    # Check if any translators are available
+    if not available_translators:
+        log.error(
+            "No translators are available. Please install dependencies for at least one translator."
+        )
+        sys.exit(1)
+
+    return parser
+
 
 if __name__ == "__main__":
     import asyncio
 
     logging.basicConfig(level=logging.INFO)
 
-    # use argparse to parse cli args
-    # verify arguments passed
-    translator = "openrouter"
-    match translator:
-        case "openrouter":
-            # model argument (default to gpt5-nano)
-            # semaphore could be provided
-            # temperature / other openai client options could be provided
-            from iudicium.translators.openrouter import Translator
-            translator = Translator()
+    # Parse arguments
+    parser = create_parser()
+    args = parser.parse_args()
 
-        case "apertus":
-            # 8B or 70B
-            # batch size could be provided
-            # other transformers options could be provided?
-            from iudicium.translators.apertus import Translator
-            translator = Translator()
+    # Set logging level
+    logging.getLogger().setLevel(getattr(logging, args.log_level))
 
-        case default:
-            raise AttributeError(f"Translator `{translator}` unkown. Supported translators: `{TRANSLATORS}`")
+    # Initialize the selected translator
+    try:
+        # Re-import the translator class (we know it worked earlier)
+        translator_class = try_import_translator(args.translator)
+        if translator_class is None:
+            log.error(f"Translator '{args.translator}' is not available")
+            sys.exit(1)
+        
+        # create the translator from cli args provided.
+        translator = translator_class.from_args(args)
 
+    except ValueError as e:
+        log.error(f"Invalid arguments: {e}")
+        sys.exit(1)
+    except KeyError as e:
+        log.error(f"Missing required environment variable: {e}")
+        sys.exit(1)
+    except Exception as e:
+        log.error(f"Failed to initialize translator: {e}")
+        sys.exit(1)
 
     # parse and remove inconcistent articles in both languages
     log.info("Step 1. Parsing constitution xml files.")
@@ -66,13 +153,15 @@ if __name__ == "__main__":
 
     # use desired translator here
     # TODO: cache on disk the results for the same set of arguments
-    log.info(f"Step 2. Calling translator.")
-    translated_articles = asyncio.run(translator.translate(articles))
-    
+    log.info(f"Step 2. Calling {args.translator} translator.")
+    breakpoint()
+    translated_articles = asyncio.run(translator.translate(en_articles))
+
     log.info("Step 3. Assessing translated articles.")
     # table output in terminal
     # csv file (each row = 1 paragraph + Average or total, each column = one metric)
-    metrics = metrics.compute(translated_articles, rm_articles)
-    print(metrics) # pretty table
-    metrics.write_csv("data/metrics/{dt.isoformat()}_{translator}_{sorted_args_passed}.csv")
-
+    # TODO: Implement metrics module
+    # metrics = metrics.compute(translated_articles, rm_articles)
+    # print(metrics) # pretty table
+    # metrics.write_csv(f"data/metrics/{dt.isoformat()}_{args.translator}_{sorted_args_passed}.csv")
+    log.info("Metrics assessment not yet implemented.")

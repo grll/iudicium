@@ -1,4 +1,14 @@
-"""Translator using OpenRouter."""
+"""Translator using OpenRouter.
+
+This module provides a Translator implementation using the OpenRouter API.
+
+In order to use this translator, you need to set the OPENROUTER_API_KEY environment variable.
+You can get your API key from OpenRouter settings: https://openrouter.ai/settings/keys.
+
+The module will try to load the api key from the .env file at import time.
+
+Run `uv add iudicium[openrouter]` to install the necessary dependencies.
+"""
 
 import asyncio
 import logging
@@ -67,6 +77,67 @@ class Translator(TranslatorProtocol):
         self.client = AsyncOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key,
+        )
+
+    @classmethod
+    def get_argparse_args(cls) -> list[tuple[list[str], dict]]:
+        """Return argparse argument definitions for OpenRouter translator.
+        
+        Returns:
+            List of tuples with argument definitions.
+        """
+        return [
+            (
+                ["--model", "-m"],
+                {
+                    "type": str,
+                    "default": "openai/gpt-5-nano",
+                    "help": "OpenRouter model to use for translation. See https://openrouter.ai/models for available models. Default to gpt-5-nano.",
+                },
+            ),
+            (
+                ["--temperature", "-t"],
+                {
+                    "type": float,
+                    "default": 0.7,
+                    "help": "Temperature for text generation (0.0-2.0). Default to 0.7.",
+                },
+            ),
+            (
+                ["--concurrency", "-c"],
+                {
+                    "type": int,
+                    "default": 10,
+                    "help": "Number of concurrent API requests. Default to 10.",
+                },
+            ),
+        ]
+
+    @classmethod
+    def from_args(cls, args) -> "Translator":
+        """Create OpenRouter translator from parsed arguments.
+        
+        Args:
+            args: Parsed command-line arguments.
+            
+        Returns:
+            Configured OpenRouter translator instance.
+            
+        Raises:
+            ValueError: If arguments are invalid.
+        """
+        # Validate temperature range
+        if not 0.0 <= args.temperature <= 2.0:
+            raise ValueError(f"Temperature must be between 0.0 and 2.0, got {args.temperature}")
+        
+        # Validate concurrency
+        if args.concurrency < 1:
+            raise ValueError(f"Concurrency must be at least 1, got {args.concurrency}")
+        
+        return cls(
+            model=args.model,
+            temperature=args.temperature,
+            concurrency=args.concurrency,
         )
 
     async def _translate_paragraph(
