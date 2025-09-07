@@ -84,13 +84,16 @@ def parse(xml_paths: list[str]) -> list[dict[str, list[str]]]:
                 del articles[art]
 
     # ensure consistency before moving forward..
-    assert set(en_articles.keys()) == set(rm_articles.keys()), (
-        "Article numbers do not match"
-    )
-    for art_num in en_articles.keys():
-        assert len(en_articles[art_num]) == len(rm_articles[art_num]), (
-            f"Number of paragraphs do not match in article {art_num}"
-        )
+    assert all(
+        set(articles.keys()) == set(parsed_articles[0].keys())
+        for articles in parsed_articles[1:]
+    ), "Article numbers do not match"
+
+    assert all(
+        len(articles[art_num]) == len(parsed_articles[0][art_num])
+        for art_num in parsed_articles[0].keys()
+        for articles in parsed_articles[1:]
+    ), "Number of paragraphs do not match"
 
     log.info(f"Found {len(parsed_articles[0])} consistent articles.")
     log.info(
