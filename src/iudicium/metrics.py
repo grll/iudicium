@@ -28,6 +28,16 @@ def rouge_score(
     return 0.0
 
 
+def compute_metrics(
+    translated_articles: dict[str, list[str]], rm_articles: dict[str, list[str]]
+) -> dict[str, float]:
+    """Compute the BLEU and ROUGE scores between the translated and the reference articles."""
+    return {
+        "bleu": bleu_score(translated_articles, rm_articles),
+        "rouge": rouge_score(translated_articles, rm_articles),
+    }
+
+
 if __name__ == "__main__":
     # Test case 1: Perfect match
     translated1 = {
