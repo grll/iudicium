@@ -176,6 +176,9 @@ class Translator(TranslatorProtocol):
 
         Args:
             articles: a dict containing all the articles of the consitution.
+        
+        Returns:
+            a dict containing all the articles of the consitution in Romansh.
         """
         log.info(f"translating {self.concurrency} paragraph at a time.")
 
