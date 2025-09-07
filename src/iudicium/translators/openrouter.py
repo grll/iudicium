@@ -235,3 +235,4 @@ if __name__ == "__main__":
         ]
     }
     translated_articles = asyncio.run(openrouter_translator.translate(articles))
+    log.info(translated_articles)
