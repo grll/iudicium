@@ -21,17 +21,23 @@ Use async to parallelize the calls, maybe implement retry / rate limit?
 
 import argparse
 import importlib
+import json
 import logging
+import os
 import sys
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from iudicium.metrics import compute_metrics
 from iudicium.parser import parse
-from iudicium.translators import TRANSLATORS
+from iudicium.translators import TRANSLATORS, TranslatorProtocol
 
 log = logging.getLogger(__name__)
 
+tz = ZoneInfo("Europe/Zurich")
 
-def try_import_translator(translator_name: str):
+
+def try_import_translator(translator_name: str) -> type[TranslatorProtocol] | None:
     """Try to import translator and return class if successful."""
     try:
         module = importlib.import_module(f"iudicium.translators.{translator_name}")
@@ -156,6 +162,14 @@ if __name__ == "__main__":
     # TODO: cache on disk the results for the same set of arguments
     log.info(f"Step 2. Calling {args.translator} translator.")
     translated_articles = asyncio.run(translator.translate(en_articles))
+
+    # save the translated articles to a file
+    dt = datetime.now(tz)
+    os.makedirs(f"data/translations", exist_ok=True)
+    with open(
+        f"data/translations/{dt.isoformat()}_{translator.cache_key}.json", "w"
+    ) as f:
+        json.dump(translated_articles, f)
 
     log.info("Step 3. Assessing translated articles.")
     metrics = compute_metrics(translated_articles, rm_articles)
