@@ -33,6 +33,15 @@ TRANSLATORS = _discover_translators()
 class TranslatorProtocol(Protocol):
     """Protocol for translator implementations."""
 
+    @property
+    def cache_key(self) -> str:
+        """Return a unique string identifying this translator configuration.
+
+        Used for cache file naming. Should include all parameters that affect output.
+        Example: "openrouter_gpt5nano_0.7"
+        """
+        ...
+
     @classmethod
     def get_argparse_args(cls) -> list[tuple[list[str], dict]]:
         """Return argparse argument definitions for this translator.

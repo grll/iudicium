@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
+from iudicium.cache import PartialTranslationsError, cached_translation
 from iudicium.translators import TranslatorProtocol
 
 try:
@@ -29,6 +30,7 @@ except ImportError as e:
         "Some necessary packages are not installed for OpenRouter Translator. "
         "Please install them with `uv add iudicium[openrouter]`."
     ) from e
+
 
 log = logging.getLogger(__name__)
 
@@ -56,6 +58,12 @@ Return **ONLY** the translated text, without any additional commentary.
 class Translator(TranslatorProtocol):
     """Translator using OpenRouter."""
 
+    @property
+    def cache_key(self) -> str:
+        """Generate cache key for this configuration."""
+        model_slug = self.model.replace("/", "_").replace("-", "")
+        return f"openrouter_{model_slug}_{self.temperature}"
+
     def __init__(
         self,
         model: OPENROUTER_MODELS = "openai/gpt-5-nano",
@@ -63,7 +71,7 @@ class Translator(TranslatorProtocol):
         concurrency: int = 10,
     ):
         """Initialize the OpenRouterTranslator.
-        
+
         Args:
             model: the model to use for translation.
             temperature: the temperature to use for translation.
@@ -82,7 +90,7 @@ class Translator(TranslatorProtocol):
     @classmethod
     def get_argparse_args(cls) -> list[tuple[list[str], dict]]:
         """Return argparse argument definitions for OpenRouter translator.
-        
+
         Returns:
             List of tuples with argument definitions.
         """
@@ -116,24 +124,26 @@ class Translator(TranslatorProtocol):
     @classmethod
     def from_args(cls, args) -> "Translator":
         """Create OpenRouter translator from parsed arguments.
-        
+
         Args:
             args: Parsed command-line arguments.
-            
+
         Returns:
             Configured OpenRouter translator instance.
-            
+
         Raises:
             ValueError: If arguments are invalid.
         """
         # Validate temperature range
         if not 0.0 <= args.temperature <= 2.0:
-            raise ValueError(f"Temperature must be between 0.0 and 2.0, got {args.temperature}")
-        
+            raise ValueError(
+                f"Temperature must be between 0.0 and 2.0, got {args.temperature}"
+            )
+
         # Validate concurrency
         if args.concurrency < 1:
             raise ValueError(f"Concurrency must be at least 1, got {args.concurrency}")
-        
+
         return cls(
             model=args.model,
             temperature=args.temperature,
@@ -168,6 +178,7 @@ class Translator(TranslatorProtocol):
         else:
             return await _call_api()
 
+    @cached_translation
     async def translate(
         self,
         articles: dict[str, list[str]],
@@ -176,7 +187,7 @@ class Translator(TranslatorProtocol):
 
         Args:
             articles: a dict containing all the articles of the consitution.
-        
+
         Returns:
             a dict containing all the articles of the consitution in Romansh.
         """
@@ -191,19 +202,32 @@ class Translator(TranslatorProtocol):
         )
 
         # TODO: handle errors / retries
-        with logging_redirect_tqdm():
-            async with asyncio.TaskGroup() as tg:
-                for article, paragraphs in articles.items():
-                    task_dict[article] = [
-                        tg.create_task(
-                            self._translate_paragraph(
-                                paragraph, semaphore, progress_bar
+        try:
+            with logging_redirect_tqdm():
+                async with asyncio.TaskGroup() as tg:
+                    for article, paragraphs in articles.items():
+                        task_dict[article] = [
+                            tg.create_task(
+                                self._translate_paragraph(
+                                    paragraph, semaphore, progress_bar
+                                )
                             )
-                        )
-                        for paragraph in paragraphs
-                    ]
-
-        progress_bar.close()
+                            for paragraph in paragraphs
+                        ]
+        except BaseException as e:
+            # Persist only fully-completed articles to avoid cache/pending mismatches.
+            partial: dict[str, list[str]] = {}
+            for article, tasks in task_dict.items():
+                # all paragraphs done, not cancelled, and no exception
+                if all(
+                    t.done() and not t.cancelled() and t.exception() is None
+                    for t in tasks
+                ):
+                    partial[article] = [t.result() for t in tasks]
+            # Surface partials to the caching decorator.
+            raise PartialTranslationsError(partial) from e
+        finally:
+            progress_bar.close()
 
         # reconstruct the result with the same structure
         translated_articles: dict[str, list[str]] = {}
