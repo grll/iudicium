@@ -85,13 +85,8 @@ class Translator(TranslatorProtocol):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            device_map="auto" if device == "cuda" else None,
             token=HF_TOKEN,
-        )
-
-        if device == "cpu":
-            self.model = self.model.to(device)
+        ).to(device)
 
     @classmethod
     def get_argparse_args(cls) -> list[tuple[list[str], dict]]:
