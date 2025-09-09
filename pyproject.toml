@@ -8,6 +8,7 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "sacrebleu>=2.5.1",
     "tqdm>=4.67.1",
+    "tzdata>=2025.2",
 ]
 
 [project.optional-dependencies]
