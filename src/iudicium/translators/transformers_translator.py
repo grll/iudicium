@@ -84,6 +84,9 @@ class Translator(TranslatorProtocol):
         log.info(f"Loading model {model_name} on {device}")
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN)
+        # Some causal LMs don't define a pad token; use EOS as PAD to allow batch padding.
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             token=HF_TOKEN,
@@ -217,14 +220,18 @@ class Translator(TranslatorProtocol):
                 temperature=self.temperature,
                 top_p=self.top_p,
                 do_sample=True if self.temperature > 0 else False,
+                pad_token_id=self.tokenizer.pad_token_id,  # be explicit
             )
 
+        # Use attention_mask to recover the true (unpadded) input length per row
+        input_lengths = model_inputs["attention_mask"].sum(dim=1).tolist()
+
         results = []
-        for i, input_ids in enumerate(model_inputs.input_ids):
-            output_ids = generated_ids[i][len(input_ids) :]
+        for i, in_len in enumerate(input_lengths):
+            output_ids = generated_ids[i][in_len:]
             translated_text = self.tokenizer.decode(
                 output_ids, skip_special_tokens=True
-            )
+            ).strip()
             results.append(translated_text)
 
         return results
@@ -243,29 +250,39 @@ class Translator(TranslatorProtocol):
         """
         log.info(f"Translating with batch size {self.batch_size}")
 
-        translated_articles: dict[str, list[str]] = {}
+        # Prepare output buffers with correct sizes
+        translated_articles: dict[str, list[str]] = {
+            art_id: [None] * len(pars) for art_id, pars in articles.items()
+        }
 
-        total_paragraphs = sum(len(paragraphs) for paragraphs in articles.values())
+        # Flatten all (article_id, paragraph_index, text) for global batching
+        flat: list[tuple[str, int, str]] = []
+        for art_id, pars in articles.items():
+            for idx, text in enumerate(pars):
+                flat.append((art_id, idx, text))
+
+        total_paragraphs = len(flat)
         progress_bar = tqdm(total=total_paragraphs, desc="Translating")
+
         try:
             with logging_redirect_tqdm():
-                for article, paragraphs in articles.items():
-                    translated_paragraphs = []
+                for i in range(0, total_paragraphs, self.batch_size):
+                    batch_meta = flat[i : i + self.batch_size]
+                    batch_texts = [t for _, _, t in batch_meta]
 
-                    for i in range(0, len(paragraphs), self.batch_size):
-                        batch = paragraphs[i : i + self.batch_size]
+                    # Run the synchronous batch on a thread to keep the event loop responsive
+                    translations = await asyncio.to_thread(
+                        self._translate_batch, batch_texts
+                    )
 
-                        loop = asyncio.get_event_loop()
-                        batch_translations = await loop.run_in_executor(
-                            None, self._translate_batch, batch
-                        )
+                    # Stitch results back in place
+                    for (art_id, idx, _), tr in zip(batch_meta, translations):
+                        translated_articles[art_id][idx] = tr
 
-                        translated_paragraphs.extend(batch_translations)
-                        progress_bar.update(len(batch))
-
-                    translated_articles[article] = translated_paragraphs
+                    progress_bar.update(len(batch_meta))
         finally:
             progress_bar.close()
+
         return translated_articles
 
 
