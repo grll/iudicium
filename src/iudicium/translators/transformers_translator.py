@@ -209,7 +209,6 @@ class Translator(TranslatorProtocol):
             texts,
             return_tensors="pt",
             padding=True,
-            truncation=True,
             add_special_tokens=False,
         ).to(self.device)
 
