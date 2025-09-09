@@ -22,7 +22,7 @@ try:
 except ImportError as e:
     raise ImportError(
         "Some necessary packages are not installed for Transformers Translator. "
-        "Please install them with `uv add iudicium[transformers]`."
+        "Please install them with `uv add iudicium[transformers]` or `uv add iudicium[transformers-cpu]` or `uv add iudicium[transformers-cu129]`."
     ) from e
 
 

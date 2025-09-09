@@ -2,10 +2,24 @@ version = 1
 requires-python = ">=3.11, <3.14"
 resolution-markers = [
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version < '3.12'",
+    "python_full_version < '3.12'",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12'",
     "python_full_version >= '3.12'",
 ]
 conflicts = [[
@@ -562,12 +576,14 @@ transformers = [
 transformers-cpu = [
     { name = "torch", version = "2.8.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" } },
     { name = "torchvision", version = "0.23.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" } },
+    { name = "transformers" },
 ]
 transformers-cu129 = [
     { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
     { name = "torch", version = "2.8.0+cu129", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "torchvision", version = "0.23.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
     { name = "torchvision", version = "0.23.0+cu129", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "transformers" },
 ]
 
 [package.dev-dependencies]
@@ -591,6 +607,8 @@ requires-dist = [
     { name = "torchvision", marker = "extra == 'transformers-cpu'", specifier = ">=0.23", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "iudicium", extra = "transformers-cpu" } },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "transformers", marker = "extra == 'transformers'", specifier = ">=4.56.1" },
+    { name = "transformers", marker = "extra == 'transformers-cpu'", specifier = ">=4.56.1" },
+    { name = "transformers", marker = "extra == 'transformers-cu129'", specifier = ">=4.56.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -1289,6 +1307,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1296,6 +1316,8 @@ name = "nvidia-cublas-cu12"
 version = "12.9.1.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1311,6 +1333,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1318,6 +1342,8 @@ name = "nvidia-cuda-cupti-cu12"
 version = "12.9.79"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1333,6 +1359,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1340,6 +1368,8 @@ name = "nvidia-cuda-nvrtc-cu12"
 version = "12.9.86"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1355,6 +1385,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1362,6 +1394,8 @@ name = "nvidia-cuda-runtime-cu12"
 version = "12.9.79"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1390,6 +1424,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "nvidia-nvjitlink-cu12", version = "12.8.93", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
@@ -1400,6 +1436,8 @@ name = "nvidia-cufft-cu12"
 version = "11.4.1.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1418,6 +1456,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1425,6 +1465,8 @@ name = "nvidia-cufile-cu12"
 version = "1.14.1.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1440,6 +1482,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1447,6 +1491,8 @@ name = "nvidia-curand-cu12"
 version = "10.3.10.19"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1462,6 +1508,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "nvidia-cublas-cu12", version = "12.8.4.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
@@ -1474,6 +1522,8 @@ name = "nvidia-cusolver-cu12"
 version = "11.7.5.82"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1494,6 +1544,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "nvidia-nvjitlink-cu12", version = "12.8.93", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
@@ -1504,6 +1556,8 @@ name = "nvidia-cusparse-cu12"
 version = "12.5.10.65"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1540,6 +1594,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1547,6 +1603,8 @@ name = "nvidia-nvjitlink-cu12"
 version = "12.9.86"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -1562,6 +1620,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 
 [[package]]
@@ -1569,6 +1629,8 @@ name = "nvidia-nvtx-cu12"
 version = "12.9.79"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -2448,6 +2510,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "filelock", marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
@@ -2485,6 +2549,10 @@ name = "torch"
 version = "2.8.0+cpu"
 source = { registry = "https://download.pytorch.org/whl/cpu" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version < '3.12'",
     "python_full_version >= '3.12'",
 ]
@@ -2523,6 +2591,8 @@ name = "torch"
 version = "2.8.0+cu129"
 source = { registry = "https://download.pytorch.org/whl/cu129" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]
@@ -2572,6 +2642,8 @@ source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 dependencies = [
     { name = "numpy", marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
@@ -2590,6 +2662,10 @@ name = "torchvision"
 version = "0.23.0+cpu"
 source = { registry = "https://download.pytorch.org/whl/cpu" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
+    "python_full_version < '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version < '3.12'",
     "python_full_version >= '3.12'",
 ]
@@ -2614,6 +2690,8 @@ name = "torchvision"
 version = "0.23.0+cu129"
 source = { registry = "https://download.pytorch.org/whl/cu129" }
 resolution-markers = [
+    "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
+    "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
     "(python_full_version < '3.12' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform == 'win32')",
     "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32')",
 ]

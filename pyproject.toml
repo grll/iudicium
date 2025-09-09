@@ -18,10 +18,12 @@ transformers = [
     "transformers>=4.56.1",
 ]
 transformers-cpu = [
+    "transformers>=4.56.1",
     "torch>=2.8.0",
     "torchvision>=0.23"
 ]
 transformers-cu129 = [
+    "transformers>=4.56.1",
     "torch>=2.8.0",
     "torchvision>=0.23"
 ]
@@ -69,6 +71,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 path = "src/iudicium/__init__.py"
+
+[project.scripts]
+iudicium = "iudicium.__main__:main"
 
 [tool.ruff.lint]
 select = ["D", "I"]

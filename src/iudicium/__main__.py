@@ -26,6 +26,7 @@ import logging
 import os
 import sys
 from datetime import datetime
+from typing import NoReturn
 from zoneinfo import ZoneInfo
 
 from iudicium.metrics import compute_metrics
@@ -116,7 +117,8 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-if __name__ == "__main__":
+def main() -> NoReturn:
+    """Main function to evaluate LLM translation of the Swiss constitution."""
     import asyncio
 
     logging.basicConfig(level=logging.INFO)
@@ -187,3 +189,7 @@ if __name__ == "__main__":
     # metrics = metrics.compute(translated_articles, rm_articles)
     # print(metrics) # pretty table
     # metrics.write_csv(f"data/metrics/{dt.isoformat()}_{args.translator}_{sorted_args_passed}.csv")
+
+
+if __name__ == "__main__":
+    main()
