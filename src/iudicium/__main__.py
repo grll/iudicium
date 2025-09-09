@@ -174,6 +174,13 @@ if __name__ == "__main__":
     log.info("Step 3. Assessing translated articles.")
     metrics = compute_metrics(translated_articles, rm_articles)
     print(metrics)
+
+    # append values to results.csv
+    with open("data/results.csv", "a") as f:
+        f.write(
+            f"{dt.isoformat()}, {translator.cache_key}, {metrics['bleu']}, {metrics['rouge']}\n"
+        )
+
     # table output in terminal
     # csv file (each row = 1 paragraph + Average or total, each column = one metric)
     # TODO: Implement metrics module
