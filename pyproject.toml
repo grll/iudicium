@@ -3,16 +3,22 @@ name = "iudicium"
 dynamic = ["version"]
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "python-dotenv>=1.1.1",
     "sacrebleu>=2.5.1",
     "tqdm>=4.67.1",
+    "numpy<2"
 ]
 
 [project.optional-dependencies]
 openrouter = [
     "openai>=1.106.1",
+]
+transformers = [
+    "transformers>=4.56.1",
+    "torch==2.2.2",
+    "torchvision==0.17.2"
 ]
 
 [dependency-groups]
