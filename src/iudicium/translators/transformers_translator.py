@@ -247,21 +247,22 @@ class Translator(TranslatorProtocol):
         total_paragraphs = sum(len(paragraphs) for paragraphs in articles.values())
         progress_bar = tqdm(total=total_paragraphs, desc="Translating")
         try:
-            for article, paragraphs in articles.items():
-                translated_paragraphs = []
+            with logging_redirect_tqdm():
+                for article, paragraphs in articles.items():
+                    translated_paragraphs = []
 
-                for i in range(0, len(paragraphs), self.batch_size):
-                    batch = paragraphs[i : i + self.batch_size]
+                    for i in range(0, len(paragraphs), self.batch_size):
+                        batch = paragraphs[i : i + self.batch_size]
 
-                    loop = asyncio.get_event_loop()
-                    batch_translations = await loop.run_in_executor(
-                        None, self._translate_batch, batch
-                    )
+                        loop = asyncio.get_event_loop()
+                        batch_translations = await loop.run_in_executor(
+                            None, self._translate_batch, batch
+                        )
 
-                    translated_paragraphs.extend(batch_translations)
-                    progress_bar.update(len(batch))
+                        translated_paragraphs.extend(batch_translations)
+                        progress_bar.update(len(batch))
 
-                translated_articles[article] = translated_paragraphs
+                    translated_articles[article] = translated_paragraphs
         finally:
             progress_bar.close()
         return translated_articles
