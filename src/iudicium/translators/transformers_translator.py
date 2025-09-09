@@ -7,8 +7,10 @@ Run `uv add iudicium[transformers]` to install the necessary dependencies.
 
 import asyncio
 import logging
+import os
 from typing import Literal
 
+from dotenv import load_dotenv
 from tqdm import tqdm
 
 from iudicium.translators import TranslatorProtocol
@@ -25,6 +27,12 @@ except ImportError as e:
 
 log = logging.getLogger(__name__)
 
+load_dotenv()
+
+# fail as early as possible if HF Token is not set.
+# also make sure you go on the model page and accept the terms of use to unlock gated models.
+HF_TOKEN = os.environ["HF_TOKEN"]
+"""HF Token usually set in `.env`. Get yours: https://huggingface.co/settings/tokens."""
 
 PROMPT = """
 Translate the following text from English to Romansh.
@@ -73,14 +81,15 @@ class Translator(TranslatorProtocol):
         self.device = device
 
         log.info(f"Loading model {model_name} on {device}")
-        
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, token=HF_TOKEN)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             device_map="auto" if device == "cuda" else None,
+            token=HF_TOKEN,
         )
-        
+
         if device == "cpu":
             self.model = self.model.to(device)
 
@@ -162,9 +171,7 @@ class Translator(TranslatorProtocol):
             )
 
         if not 0.0 <= args.top_p <= 1.0:
-            raise ValueError(
-                f"top_p must be between 0.0 and 1.0, got {args.top_p}"
-            )
+            raise ValueError(f"top_p must be between 0.0 and 1.0, got {args.top_p}")
 
         if args.batch_size < 1:
             raise ValueError(f"Batch size must be at least 1, got {args.batch_size}")
@@ -189,7 +196,7 @@ class Translator(TranslatorProtocol):
             [{"role": "user", "content": PROMPT.format(text=paragraph)}]
             for paragraph in paragraphs
         ]
-        
+
         texts = [
             self.tokenizer.apply_chat_template(
                 messages,
@@ -198,15 +205,15 @@ class Translator(TranslatorProtocol):
             )
             for messages in messages_list
         ]
-        
+
         model_inputs = self.tokenizer(
-            texts, 
-            return_tensors="pt", 
+            texts,
+            return_tensors="pt",
             padding=True,
             truncation=True,
-            add_special_tokens=False
+            add_special_tokens=False,
         ).to(self.device)
-        
+
         with torch.no_grad():
             generated_ids = self.model.generate(
                 **model_inputs,
@@ -215,13 +222,15 @@ class Translator(TranslatorProtocol):
                 top_p=self.top_p,
                 do_sample=True if self.temperature > 0 else False,
             )
-        
+
         results = []
         for i, input_ids in enumerate(model_inputs.input_ids):
-            output_ids = generated_ids[i][len(input_ids):]
-            translated_text = self.tokenizer.decode(output_ids, skip_special_tokens=True)
+            output_ids = generated_ids[i][len(input_ids) :]
+            translated_text = self.tokenizer.decode(
+                output_ids, skip_special_tokens=True
+            )
             results.append(translated_text)
-        
+
         return results
 
     async def translate(
@@ -237,27 +246,26 @@ class Translator(TranslatorProtocol):
             a dict containing all the articles of the constitution in Romansh.
         """
         log.info(f"Translating with batch size {self.batch_size}")
-        
+
         translated_articles: dict[str, list[str]] = {}
-        
+
         total_paragraphs = sum(len(paragraphs) for paragraphs in articles.values())
         progress_bar = tqdm(total=total_paragraphs, desc="Translating")
         try:
-                
             for article, paragraphs in articles.items():
                 translated_paragraphs = []
-                
+
                 for i in range(0, len(paragraphs), self.batch_size):
-                    batch = paragraphs[i:i + self.batch_size]
-                    
+                    batch = paragraphs[i : i + self.batch_size]
+
                     loop = asyncio.get_event_loop()
                     batch_translations = await loop.run_in_executor(
                         None, self._translate_batch, batch
                     )
-                    
+
                     translated_paragraphs.extend(batch_translations)
                     progress_bar.update(len(batch))
-                
+
                 translated_articles[article] = translated_paragraphs
         finally:
             progress_bar.close()
@@ -266,11 +274,11 @@ class Translator(TranslatorProtocol):
 
 if __name__ == "__main__":
     import asyncio
-    
+
     logging.basicConfig(level=logging.INFO)
-    
+
     transformers_translator = Translator()
-    
+
     articles = {
         "64": [
             "The Confederation shall promote scientific research and innovation.",
@@ -278,6 +286,6 @@ if __name__ == "__main__":
             "It may establish, take over or run research institutes.",
         ]
     }
-    
+
     translated_articles = asyncio.run(transformers_translator.translate(articles))
     log.info(translated_articles)
