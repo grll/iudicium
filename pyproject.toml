@@ -1,14 +1,13 @@
 [project]
 name = "iudicium"
 dynamic = ["version"]
-description = "Add your description here"
+description = "Evaluations for Apertus."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "python-dotenv>=1.1.1",
     "sacrebleu>=2.5.1",
     "tqdm>=4.67.1",
-    "numpy<2"
 ]
 
 [project.optional-dependencies]
@@ -17,9 +16,44 @@ openrouter = [
 ]
 transformers = [
     "transformers>=4.56.1",
-    "torch==2.2.2",
-    "torchvision==0.17.2"
 ]
+transformers-cpu = [
+    "torch>=2.8.0",
+    "torchvision>=0.23"
+]
+transformers-cu129 = [
+    "torch>=2.8.0",
+    "torchvision>=0.23"
+]
+
+# Declare these extras as conflicting so users can't pick 2 backends at once.
+[tool.uv]
+conflicts = [
+  [{extra="transformers-cpu"},   {extra="transformers-cu129"}],
+]
+
+# Pin torch-family packages to the correct index PER extra (and platform).
+# CUDA wheels are Linux/Windows only; macOS should fall back to PyPI CPU wheels.
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu",  extra = "transformers-cpu" },
+  { index = "pytorch-cu129", extra = "transformers-cu129", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+  { index = "pytorch-cpu",  extra = "transformers-cpu" },
+  { index = "pytorch-cu129", extra = "transformers-cu129", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+# Define the named indexes. "explicit = true" ensures ONLY torch-family uses them.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url  = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url  = "https://download.pytorch.org/whl/cu129"
+explicit = true
 
 [dependency-groups]
 dev = [
