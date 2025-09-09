@@ -50,6 +50,7 @@ def try_import_translator(translator_name: str) -> type[TranslatorProtocol] | No
         log.warning(
             f"To use '{translator_name}', install with: uv add 'iudicium[{translator_name}]'"
         )
+        log.debug("Full traceback:", exc_info=True)  # This will log the full traceback
         return None
     except AttributeError as e:
         log.warning(
