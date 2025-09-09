@@ -12,6 +12,7 @@ from typing import Literal
 
 from dotenv import load_dotenv
 from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from iudicium.translators import TranslatorProtocol
 
